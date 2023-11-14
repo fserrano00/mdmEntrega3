@@ -14,3 +14,13 @@ Future<List> getUsuarios() async {
 
   return Usuarios;
 }
+
+Future<void> sendUsuarios(String nombre, String correo, String telefono) async {
+  CollectionReference collectionReferenceUsuarios = db.collection('Usuarios');
+
+  await collectionReferenceUsuarios.add({
+    'nombre': nombre,
+    'correo': correo,
+    'telefono': telefono,
+  });
+}

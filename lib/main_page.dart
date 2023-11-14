@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:proyectomdm/menu_lateral.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'firebase_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:proyectomdm/calendario_global.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,6 +37,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    User? getCurrentUser() {
+      return FirebaseAuth.instance.currentUser;
+    }
+
+    User? user = getCurrentUser();
     return Scaffold(
       appBar: AppBar(
         title: Text("MediManager"),
@@ -45,20 +53,21 @@ class _MainPageState extends State<MainPage> {
       drawer: SidebarMenu(),
       body: SafeArea(
         child: SingleChildScrollView(
-          // Envuelve todo el contenido con SingleChildScrollView
           child: Column(
             children: [
               Padding(
                 padding: EdgeInsets.only(left: 20, top: 20),
                 child: Row(
-                  children: [
-                    Text(
-                      "Gusto de verte ",
-                      style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue.shade900),
-                    ),
+                  children: <Widget>[
+                    if (user != null)
+                      Text(
+                        'Hola ${user.email}',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple.shade900),
+                      ),
+                    if (user == null) Text('No hay usuario'),
                   ],
                 ),
               ),
@@ -80,7 +89,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: TableCalendar(
                     focusedDay: DateTime.now(),
                     firstDay: DateTime.utc(2010, 10, 16),

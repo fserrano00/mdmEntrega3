@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:proyectomdm/calendario_global.dart';
+import 'package:proyectomdm/chat_global.dart';
 import 'package:proyectomdm/firebase_service.dart';
+import 'package:proyectomdm/main_page.dart';
+import 'package:proyectomdm/registro_doctor.dart';
 
 class SidebarMenu extends StatelessWidget {
   @override
@@ -39,7 +43,42 @@ class SidebarMenu extends StatelessWidget {
                     leading: Icon(Icons.home),
                     title: Text('Inicio'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.upgrade),
+                    title: Text('Registrarse como Doctor'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RegistroDoctor()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.calendar_month),
+                    title: Text('Tus citas'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CalendarioCitas()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.calendar_month),
+                    title: Text('Tus citas'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChatScreen()),
+                      );
                     },
                   ),
                 ],
