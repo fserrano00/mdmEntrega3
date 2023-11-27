@@ -1,23 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:proyectomdm/bloc/manager_bloc.dart';
 
 import 'package:proyectomdm/menu_lateral.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:proyectomdm/calendario_global.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MainPage(),
-    );
-  }
-}
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -26,15 +15,17 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
-  bool isDrawerOpen = false;
+bool isDrawerOpen = false;
 
-  void toggleDrawer() {
+class _MainPageState extends State<MainPage> {
+  DateTime today = DateTime.now();
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      isDrawerOpen = !isDrawerOpen;
+      today = selectedDay;
     });
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     User? getCurrentUser() {
@@ -43,12 +34,14 @@ class _MainPageState extends State<MainPage> {
 
     User? user = getCurrentUser();
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("MediManager"),
         leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: toggleDrawer,
-        ),
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            }),
       ),
       drawer: SidebarMenu(),
       body: SafeArea(
@@ -90,10 +83,12 @@ class _MainPageState extends State<MainPage> {
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: TableCalendar(
-                    focusedDay: DateTime.now(),
-                    firstDay: DateTime.utc(2010, 10, 16),
-                    lastDay: DateTime.utc(2030, 3, 14)),
+                child: ContentWidget(
+                  user: getCurrentUser(),
+                  today: DateTime.now(),
+                  eventController: TextEditingController(),
+                  onDaySelected: _onDaySelected,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(
@@ -116,7 +111,7 @@ class _MainPageState extends State<MainPage> {
                 height: 20,
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(
@@ -132,7 +127,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(

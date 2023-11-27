@@ -6,12 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -28,7 +22,7 @@ class ChatScreen extends StatefulWidget {
 
 Future<String?> uploadImageToFirebaseStorage(File? imageFile) async {
   if (imageFile == null) {
-    return null; // Maneja el caso en el que imageFile es null.
+    return null;
   }
 
   final storage = FirebaseStorage.instance;
@@ -48,8 +42,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   final _messageTextController = TextEditingController();
-  File? _imageFile; // Marcar como File opcional
-  String? selectedRecipient; // Marcar como String opcional
+  File? _imageFile;
+  String? selectedRecipient;
 
   void _getImageFromCamera() async {
     final pickedFile =

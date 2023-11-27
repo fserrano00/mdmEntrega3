@@ -72,8 +72,8 @@ class SidebarMenu extends StatelessWidget {
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.calendar_month),
-                    title: Text('Tus citas'),
+                    leading: Icon(Icons.message),
+                    title: Text('Chat'),
                     onTap: () {
                       Navigator.push(
                         context,
