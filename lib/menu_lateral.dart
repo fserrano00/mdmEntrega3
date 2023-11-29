@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:proyectomdm/Chat2/sender_Chat.dart';
+import 'package:proyectomdm/Chat2/userListScreen.dart';
 import 'package:proyectomdm/calendario_global.dart';
-import 'package:proyectomdm/chat_global.dart';
+
 import 'package:proyectomdm/firebase_service.dart';
 import 'package:proyectomdm/main_page.dart';
 import 'package:proyectomdm/registro_doctor.dart';
@@ -77,7 +80,11 @@ class SidebarMenu extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ChatScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => UsersListScreen(
+                                  currentUserId:
+                                      FirebaseAuth.instance.currentUser!.uid,
+                                )),
                       );
                     },
                   ),
