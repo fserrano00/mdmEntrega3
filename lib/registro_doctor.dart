@@ -4,27 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:proyectomdm/login.dart';
 
 class RegistroDoctor extends StatelessWidget {
-  //TODO CREAR APPEND A FIREBASSE AUTH
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  Future<UserCredential?> _crearCuenta() async {
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _correoElectronico.text,
-        password: _contrasenaController.text,
-      );
-      return userCredential; // Devuelve el userCredential si la creación de cuenta fue exitosa.
-    } catch (e) {
-      // Ocurrió un error, maneja el error según tus necesidades.
-      print("Error: $e");
-      return null; // Retorna null si la creación de cuenta falló.
-    }
-  }
 
   final firestoreInstance = FirebaseFirestore.instance;
 
-  // Declare controllers for text fields
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
   final _correoElectronico = TextEditingController();
@@ -32,7 +15,6 @@ class RegistroDoctor extends StatelessWidget {
   final _edadController = TextEditingController();
   final _cedulaController = TextEditingController();
 
-  // Declare a ValueNotifier for the doctor certification checkbox
   final ValueNotifier<bool> _isDoctorCertified = ValueNotifier<bool>(false);
 
   RegistroDoctor({Key? key}) : super(key: key);
@@ -103,7 +85,7 @@ class RegistroDoctor extends StatelessWidget {
               SizedBox(height: 30.0),
               ElevatedButton(
                 onPressed: () {
-                  // Obtain the values from the form fields
+                  // Obtener los valores de los campos del formulario
                   final nombre = _nombreController.text;
                   final apellido = _apellidoController.text;
                   final correoElectronico = _correoElectronico.text;
@@ -112,42 +94,80 @@ class RegistroDoctor extends StatelessWidget {
                   final cedula = _cedulaController.text;
                   final isDoctorCertified = _isDoctorCertified.value;
 
-                  // Add the data to Firestore
-                  firestoreInstance.collection("Clientes").add({
-                    "nombre": nombre,
-                    "apellido": apellido,
-                    "especialidad": correoElectronico,
-                    "contraseña": contrasena,
-                    "direccion": Edad,
-                    "cedula": cedula,
-                    "doctorCertified": isDoctorCertified,
-                  }).then((value) {
-                    // Show a success message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Doctor registrado correctamente.'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }).then((value) {
-                    _crearCuenta().then((userCredential) {
-                      if (userCredential != null) {
-                        // La creación de cuenta fue exitosa, puedes redirigir al usuario a la página deseada.
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                LogIn(), // Reemplaza 'OtraPagina' con el nombre de tu página.
-                          ),
-                        );
-                      }
-                    });
-                  });
+                  // Agregar los datos a Firestore
+                  _crearCuenta(
+                    nombre,
+                    apellido,
+                    correoElectronico,
+                    contrasena,
+                    Edad,
+                    cedula,
+                    isDoctorCertified,
+                    context,
+                  );
                 },
                 child: Text('Registrar'),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _crearCuenta(
+    String nombre,
+    String apellido,
+    String correoElectronico,
+    String contrasena,
+    String Edad,
+    String cedula,
+    bool isDoctorCertified,
+    BuildContext context,
+  ) async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: correoElectronico,
+        password: contrasena,
+      );
+
+      // Obtener el UID generado por Firebase Auth
+      String uid = userCredential.user!.uid;
+
+      // Guardar información en Firestore, incluyendo el UID de Firebase Auth
+      await firestoreInstance.collection('Clientes').doc(uid).set({
+        "nombre": nombre,
+        "apellido": apellido,
+        "correo": correoElectronico,
+        "contraseña": contrasena,
+        "direccion": Edad,
+        "cedula": cedula,
+        "doctorCertified": isDoctorCertified,
+        "uid": uid, // Agregar el campo con el UID de Firebase Auth
+        // ...otros campos que quieras guardar para el usuario
+      });
+
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Doctor registrado correctamente.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Redirigir al usuario después del registro exitoso
+      _navigateToLoginScreen(context);
+    } catch (e) {
+      print("Error: $e");
+      // Manejar errores según sea necesario
+    }
+  }
+
+  void _navigateToLoginScreen(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => LogIn(),
       ),
     );
   }

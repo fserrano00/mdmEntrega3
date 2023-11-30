@@ -177,10 +177,16 @@ class _ChatScreenState extends State<ChatScreen> {
         String otherUserEmail = await _getOtherUserEmail(widget.otherUserId);
 
         if (otherUserEmail.isNotEmpty) {
-          String chatId = _generateChatId(currentEmail, otherUserEmail);
+          String chatId = _generateChatId(
+            currentEmail,
+            otherUserEmail,
+          );
 
           _firestore.collection('chats').doc(chatId).set({
-            'chatters': [currentEmail, otherUserEmail],
+            'chatters': [
+              widget.currentUserId,
+              widget.otherUserId,
+            ],
             'lastModifiedAt': DateTime.now(),
           });
 
@@ -190,7 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
               .collection('messages')
               .add({
             'content': messageText,
-            'senderId': currentEmail,
+            'senderId': currentUser.uid,
             'createdAt': DateTime.now(),
           });
 
@@ -313,6 +319,11 @@ class ChatMessagesScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _generateChatId(String userEmail1, String userEmail2) {
+    List<String> sortedEmails = [userEmail1, userEmail2]..sort();
+    return '${sortedEmails[0]}_${sortedEmails[1]}';
   }
 
   void _sendMessage() {
