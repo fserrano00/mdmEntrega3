@@ -85,7 +85,6 @@ class RegistroDoctor extends StatelessWidget {
               SizedBox(height: 30.0),
               ElevatedButton(
                 onPressed: () {
-                  // Obtener los valores de los campos del formulario
                   final nombre = _nombreController.text;
                   final apellido = _apellidoController.text;
                   final correoElectronico = _correoElectronico.text;
@@ -94,7 +93,6 @@ class RegistroDoctor extends StatelessWidget {
                   final cedula = _cedulaController.text;
                   final isDoctorCertified = _isDoctorCertified.value;
 
-                  // Agregar los datos a Firestore
                   _crearCuenta(
                     nombre,
                     apellido,
@@ -132,10 +130,8 @@ class RegistroDoctor extends StatelessWidget {
         password: contrasena,
       );
 
-      // Obtener el UID generado por Firebase Auth
       String uid = userCredential.user!.uid;
 
-      // Guardar información en Firestore, incluyendo el UID de Firebase Auth
       await firestoreInstance.collection('Clientes').doc(uid).set({
         "nombre": nombre,
         "apellido": apellido,
@@ -144,11 +140,9 @@ class RegistroDoctor extends StatelessWidget {
         "direccion": Edad,
         "cedula": cedula,
         "doctorCertified": isDoctorCertified,
-        "uid": uid, // Agregar el campo con el UID de Firebase Auth
-        // ...otros campos que quieras guardar para el usuario
+        "uid": uid,
       });
 
-      // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Doctor registrado correctamente.'),
@@ -156,11 +150,9 @@ class RegistroDoctor extends StatelessWidget {
         ),
       );
 
-      // Redirigir al usuario después del registro exitoso
       _navigateToLoginScreen(context);
     } catch (e) {
       print("Error: $e");
-      // Manejar errores según sea necesario
     }
   }
 

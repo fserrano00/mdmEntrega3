@@ -47,9 +47,7 @@ class ChatScreen extends StatefulWidget {
   final String currentUserId;
   final String otherUserId;
 
-  ChatScreen(
-      {required this.currentUserId,
-      required this.otherUserId}); // Agrega el parámetro otherUserId
+  ChatScreen({required this.currentUserId, required this.otherUserId});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -143,29 +141,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // void _sendMessage2() {
-  //   String messageText = _textController.text;
-
-  //   if (messageText.isNotEmpty) {
-  //     _firestore.collection('chats').add({
-  //       'chatters': [
-  //         widget.currentUserId,
-  //         widget.otherUserId
-  //       ], // Correos electrónicos de los usuarios
-  //       'lastModifiedAt': DateTime.now(),
-  //       'messages': [
-  //         {
-  //           'content': messageText,
-  //           'senderId': widget.currentUserId,
-  //           'createdAt': DateTime.now(),
-  //         },
-  //       ],
-  //     });
-
-  //     _textController.clear();
-  //   }
-  // }
-
   void _startChat2() async {
     String messageText = _textController.text;
 
@@ -225,16 +200,13 @@ Future<String> _getOtherUserEmail(String userId) async {
         .doc(userId)
         .get();
 
-    // Verificar si se encontró el documento y si contiene el campo 'especialidad'
     if (userDoc.exists && userDoc.data() != null) {
       var userEmail = userDoc.data()!['especialidad'];
-      return userEmail.toString(); // Retorna el correo electrónico del usuario
+      return userEmail.toString();
     } else {
-      // Manejar el caso en el que no se encuentra el usuario o no tiene 'especialidad'
       return '';
     }
   } catch (e) {
-    // Manejar cualquier error que pueda ocurrir durante la obtención de datos
     print('Error al obtener el correo electrónico: $e');
     return '';
   }
@@ -330,7 +302,6 @@ class ChatMessagesScreen extends StatelessWidget {
     String messageText = _textController.text;
 
     if (messageText.isNotEmpty) {
-      // Guarda el mensaje con los IDs de los usuarios en una colección específica del chat
       _firestore.collection('chats').doc(chatId).collection('messages').add({
         'content': messageText,
         'senderId': currentUserId,

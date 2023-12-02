@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:proyectomdm/Chat2/sender_Chat.dart';
 import 'package:proyectomdm/Chat2/userListScreen.dart';
 import 'package:proyectomdm/calendario_global.dart';
 
@@ -12,6 +11,12 @@ import 'package:proyectomdm/registro_doctor.dart';
 class SidebarMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    User? getCurrentUser() {
+      return FirebaseAuth.instance.currentUser;
+    }
+
+    User? user = getCurrentUser();
+
     return Drawer(
       child: FutureBuilder(
         future: getUsuarios(),
@@ -27,19 +32,20 @@ class SidebarMenu extends StatelessWidget {
                 List<Map<String, dynamic>>.from(snapshot.data as List<dynamic>);
             if (userDataList.isNotEmpty) {
               var userData = userDataList[0];
-              var accountName = userData['Nombre'];
-              var accountEmail = userData[
-                  'Correo']; // Suponiendo que el campo se llama 'Correo'
+              var accountName = user?.displayName ?? userData['nombre'];
+              var accountEmail = user?.email ?? userData['Correo'];
+              var accountUID = FirebaseAuth.instance.currentUser!
+                  .uid; // Suponiendo que el campo se llama 'Correo'
 
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
                   UserAccountsDrawerHeader(
-                    accountName: Text(accountName),
+                    accountName: Text(accountUID),
                     accountEmail: Text(accountEmail),
                     currentAccountPicture: CircleAvatar(
                       backgroundColor: Colors.white,
-                      child: Text(accountName[0]),
+                      child: Text(accountName?[0] ?? ''),
                     ),
                   ),
                   ListTile(

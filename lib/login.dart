@@ -160,8 +160,7 @@ class LogIn extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                RegistroDoctor(), // Replace RegisterPage with the desired page
+                            builder: (context) => RegistroDoctor(),
                           ),
                         );
                       },

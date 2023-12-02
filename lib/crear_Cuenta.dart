@@ -19,11 +19,10 @@ class _CrearCuentaState extends State<CrearCuenta> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      return userCredential; // Devuelve el userCredential si la creación de cuenta fue exitosa.
+      return userCredential;
     } catch (e) {
-      // Ocurrió un error, maneja el error según tus necesidades.
       print("Error: $e");
-      return null; // Retorna null si la creación de cuenta falló.
+      return null;
     }
   }
 
@@ -108,11 +107,9 @@ class _CrearCuentaState extends State<CrearCuenta> {
                 onPressed: () {
                   _crearCuenta().then((userCredential) {
                     if (userCredential != null) {
-                      // La creación de cuenta fue exitosa, puedes redirigir al usuario a la página deseada.
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              LogIn(), // Reemplaza 'OtraPagina' con el nombre de tu página.
+                          builder: (context) => LogIn(),
                         ),
                       );
                     }

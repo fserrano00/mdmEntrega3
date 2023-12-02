@@ -61,7 +61,6 @@ class UsersListScreen extends StatelessWidget {
                       );
                     } else {
                       print('Usuario no encontrado');
-                      // Manejar caso en que el usuario no sea encontrado
                     }
                   });
                 },

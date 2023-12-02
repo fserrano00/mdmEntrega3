@@ -23,7 +23,45 @@ class CalendarioCitas extends StatefulWidget {
 class _CalendarioCitasState extends State<CalendarioCitas> {
   DateTime today = DateTime.now();
   TextEditingController _eventController = TextEditingController();
+  TextEditingController _pacienteController = TextEditingController();
   User? user = FirebaseAuth.instance.currentUser;
+  String userUID = '';
+
+  Future<String?> searchClients(String searchText) async {
+    final query = await FirebaseFirestore.instance
+        .collection('Clientes')
+        .where('correo', isEqualTo: _pacienteController.text)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      final userUID = query.docs.first.id;
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Resultado de la búsqueda"),
+            content: Text(
+                "Se ha agregado la cita correctamente a el paciente con el identificador: $userUID"),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(userUID);
+                },
+                child: Text("Cerrar"),
+              ),
+            ],
+          );
+        },
+      );
+      return userUID;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error, No se encontró ningún paciente.")),
+      );
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,18 +89,49 @@ class _CalendarioCitasState extends State<CalendarioCitas> {
                       scrollable: true,
                       title: Text("Motivo cita "),
                       content: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: TextField(
-                          controller: _eventController,
-                        ),
-                      ),
+                          padding: EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: _pacienteController,
+                                decoration: InputDecoration(
+                                    hintText: 'correo del usuario'),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              TextField(
+                                controller: _eventController,
+                                decoration: InputDecoration(
+                                    hintText: 'Motivo de la cita'),
+                              )
+                            ],
+                          )),
                       actions: [
                         ElevatedButton(
-                          onPressed: () {
-                            _saveEventToFirestore();
+                          onPressed: () async {
                             Navigator.of(context).pop();
+
+                            final pacienteEmail = _pacienteController.text;
+                            final eventTittle = _eventController.text;
+
+                            final userUID = await searchClients(pacienteEmail);
+
+                            if (userUID != null) {
+                              _saveEventToFirestore(
+                                selectedDay: today,
+                                eventTittle: eventTittle,
+                                pacienteController: pacienteEmail,
+                                userUID: userUID,
+                              );
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return DialogoConfirmacion();
+                                  });
+                            }
                           },
-                          child: Text("Guardar"),
+                          child: Text("Siguiente"),
                         )
                       ],
                     );
@@ -77,25 +146,31 @@ class _CalendarioCitasState extends State<CalendarioCitas> {
     );
   }
 
-  void _saveEventToFirestore() async {
+  void _saveEventToFirestore({
+    required DateTime selectedDay,
+    required String eventTittle,
+    required String pacienteController,
+    required String userUID,
+  }) async {
     final firestore = FirebaseFirestore.instance;
-    final selectedDay = today;
+
+    final event = {
+      'title': eventTittle,
+      'date': selectedDay,
+      'paciente': pacienteController,
+    };
 
     if (user != null) {
-      final event = {
-        'title': _eventController.text,
-        'date': selectedDay,
-      };
-
       await firestore
           .collection('Citas2')
-          .doc(user?.uid)
+          .doc(userUID)
           .collection('Detalles')
           .add(event);
     }
 
     setState(() {
       _eventController.clear();
+      _pacienteController.clear();
     });
   }
 
@@ -103,6 +178,31 @@ class _CalendarioCitasState extends State<CalendarioCitas> {
     setState(() {
       today = selectedDay;
     });
+  }
+}
+
+class DialogoConfirmacion extends StatefulWidget {
+  @override
+  _DialogoConfirmacionState createState() => _DialogoConfirmacionState();
+}
+
+class _DialogoConfirmacionState extends State<DialogoConfirmacion> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Confirmar la creacion de la cita "),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text("Connfirmar Cita "),
+        )
+      ],
+    );
   }
 }
 
